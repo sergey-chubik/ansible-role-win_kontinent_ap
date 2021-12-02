@@ -1,0 +1,13 @@
+---
+# defaults file for win_kontinent_ap
+win_kontinent_ap_files: "{{ role_path }}/files"
+win_kontinent_ap_copy_path: 'C:\temp\ts\'
+win_kontinent_ap_install_cert: Security_Code_LLC.cer
+win_kontinent_ap_install_package: ts_setup_3.7.7.651.exe
+
+# Add a network static route for work SUFD via proxy (Default: true)
+win_kontinent_ap_static_route: true
+win_kontinent_ap_network_sufd:
+  - "94.25.22.234/32"
+  - "94.25.33.170/32"
+win_kontinent_ap_ip_proxy: "10.66.10.250"

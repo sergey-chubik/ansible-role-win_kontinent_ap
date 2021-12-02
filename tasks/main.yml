@@ -1,0 +1,40 @@
+---
+# tasks file for win_kontinent_ap
+
+- name: win_kontinent_ap | Copy install packages in directory temp
+  win_copy:
+    src: "{{ win_kontinent_ap_files }}/{{ item }}"
+    dest: "{{ win_kontinent_ap_copy_path }}"
+  loop:
+    - "{{ win_kontinent_ap_install_cert }}"
+    - "{{ win_kontinent_ap_install_package }}"
+
+- name: win_kontinent_ap | Import a cert is LocalMachine/TrustedPublisher store
+  win_certificate_store:
+    path: "{{ win_kontinent_ap_copy_path }}Security_Code_LLC.cer"
+    state: present
+    store_location: LocalMachine
+    file_type: pem
+    store_name: TrustedPublisher
+
+- name: win_kontinent_ap | Add a network static route for SUFD via Proxy
+  win_route:
+    destination: "{{ item }}"
+    gateway: "{{ win_kontinent_ap_ip_proxy }}"
+    metric: 1
+    state: present
+  loop: "{{ win_kontinent_ap_network_sufd }}"
+  when: win_kontinent_ap_static_route
+
+- name: win_kontinent_ap | Install Kontinent-AP
+  win_package:
+    path: "{{ win_kontinent_ap_copy_path }}{{ win_kontinent_ap_install_package }}"
+    product_id: '{B0CBA110-FE9A-4FD1-A6CE-A973A8286AE4}'
+    arguments: '/S /NR /LANG=RU /DO=INSTALL /NMSE'
+    state: present
+  any_errors_fatal: true
+
+- name: win_kontinent_ap | Remove directory temp
+  win_file:
+    path: "{{ win_kontinent_ap_copy_path }}"
+    state: absent
